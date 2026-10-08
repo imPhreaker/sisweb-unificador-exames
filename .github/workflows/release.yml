@@ -1,0 +1,45 @@
+# Ao enviar uma tag como v3.0.0, gera o .zip da extensão e publica a Release.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verificar
+        run: |
+          node scripts/check.mjs
+          version="$(node -p "require('./manifest.json').version")"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "A tag $GITHUB_REF_NAME não corresponde à versão $version do manifest.json"
+            exit 1
+          fi
+
+      - name: Empacotar
+        run: |
+          name="sisweb-unificador-exames-$GITHUB_REF_NAME"
+          mkdir -p "dist/$name"
+          cp manifest.json background.js content.js popup-bridge.js sites.js \
+             options.html options.css options.js pdf-lib.min.js \
+             README.md THIRD_PARTY_NOTICES.md "dist/$name/"
+          [ -f LICENSE ] && cp LICENSE "dist/$name/"
+          (cd dist && zip -r "$name.zip" "$name")
+
+      - name: Publicar Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "dist/sisweb-unificador-exames-$GITHUB_REF_NAME.zip" \
+            --title "$GITHUB_REF_NAME" --notes "Veja o CHANGELOG.md para as mudanças desta versão."

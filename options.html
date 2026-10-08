@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SISWeb Unificador de Exames</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>SISWeb Unificador de Exames</h1>
+      <p class="hint">Informe o endereço do SISWeb do seu município. A extensão só atua nos endereços cadastrados aqui.</p>
+    </header>
+
+    <form id="add-form" novalidate>
+      <label for="site-url">Endereço do SISWeb</label>
+      <div class="row">
+        <input id="site-url" type="url" inputmode="url" autocomplete="off" spellcheck="false"
+               placeholder="https://sisweb.municipio.gov.br/sis/" aria-describedby="url-help" required>
+        <button type="submit">Adicionar</button>
+      </div>
+      <p id="url-help" class="hint">Aceita http:// ou https://, com porta se houver (ex.: http://servidor:8099/sis/).</p>
+    </form>
+
+    <p id="message" role="status" aria-live="polite"></p>
+
+    <section aria-labelledby="sites-title">
+      <h2 id="sites-title">Endereços cadastrados</h2>
+      <p id="empty" class="hint">Nenhum endereço cadastrado ainda.</p>
+      <ul id="sites"></ul>
+    </section>
+
+    <p class="hint footer">Depois de adicionar um endereço, recarregue a página do SISWeb. Nenhum dado é enviado para fora do próprio SISWeb.</p>
+  </main>
+  <script src="sites.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

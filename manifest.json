@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "SISWeb Unificador de Exames",
+  "version": "3.0.0",
+  "description": "Reúne localmente os PDFs de exames exibidos no prontuário do SISWeb.",
+  "minimum_chrome_version": "119",
+  "permissions": ["storage", "scripting"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Configurar SISWeb Unificador de Exames",
+    "default_popup": "options.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

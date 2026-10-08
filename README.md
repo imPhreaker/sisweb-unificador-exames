@@ -1,3 +1,5 @@
+<img src="icons/icon.svg" alt="" width="96" align="right">
+
 # SISWeb Unificador de Exames
 
 Extensão para navegadores baseados em Chromium (Chrome, Edge, Brave e outros) que reúne em PDF os resultados de exames laboratoriais exibidos no prontuário do **SISWeb**. Em vez de abrir cada resultado separadamente, o profissional clica uma vez e recebe:
@@ -11,7 +13,7 @@ Todo o processamento acontece no próprio navegador. Nenhum PDF, dado clínico o
 
 ## Requisitos
 
-- Chrome 119 ou mais recente (ou navegador Chromium equivalente).
+- Chrome 102 ou mais recente (ou navegador Chromium equivalente).
 - Acesso ao SISWeb do seu município, com usuário já autenticado.
 
 ## Instalação
@@ -56,7 +58,7 @@ Se a ficha do paciente não for encontrada na tela, o trecho `ficha-12345` é om
 
 ### Como funciona
 
-Para cada exame da lista, a extensão aciona o mesmo comando que o SISWeb executa ao clicar no ícone do exame. O sistema abre uma aba temporária `EXAME` com o PDF; a extensão captura esse PDF, fecha a aba temporária e passa ao próximo exame. No fim, as páginas são reunidas com a biblioteca [pdf-lib](https://pdf-lib.js.org/).
+Para cada exame da lista, a extensão aciona o mesmo comando que o SISWeb executa ao clicar no ícone do exame. Normalmente o sistema abriria uma nova janela `EXAME` com o PDF; durante a coleta, a extensão faz essa janela ser criada como um quadro oculto dentro da própria página, lê dali o PDF e o descarta. Assim nenhuma aba é aberta e o bloqueador de pop-ups do navegador não interfere. No fim, as páginas são reunidas com a biblioteca [pdf-lib](https://pdf-lib.js.org/).
 
 - Cada exame de cada requisição entra uma única vez; o mesmo exame em datas diferentes gera páginas separadas.
 - Só são considerados os exames da ficha em primeiro plano, mesmo que outras fichas estejam abertas por baixo.
@@ -72,7 +74,7 @@ Para cada exame da lista, a extensão aciona o mesmo comando que o SISWeb execut
 
 ## Limitações conhecidas
 
-- Depende da estrutura atual das telas do SISWeb (a ação `FREXAMES` nos ícones de exame e a aba temporária `EXAME`). Mudanças do fornecedor nessas telas podem exigir ajustes na extensão.
+- Depende da estrutura atual das telas do SISWeb (a ação `FREXAMES` nos ícones de exame e a página `EXAME` aberta com `window.open`). Mudanças do fornecedor nessas telas podem exigir ajustes na extensão.
 - Testada no módulo Ambulatório (Observados → Monitor). Outras telas com lista de exames podem funcionar, mas não foram verificadas.
 - Os exames são obtidos um de cada vez; listas grandes levam alguns segundos por exame.
 

@@ -7,17 +7,14 @@
   const EXAM_CALL = /FREXAMES[\s\S]*?exame=(\d+)/i;
   const REQUEST_CALL = /FREXAMES[\s\S]*?requi=(\d+)/i;
   const DATE_TEXT = /\b(\d{2})\/(\d{2})\/(\d{4})\b/;
+  // Eventos trocados com page-bridge.js, que roda no contexto da página.
+  const ARM = 'sisweb-unificador:arm';
+  const RELEASE = 'sisweb-unificador:release';
+  const PDF_READY = 'sisweb-unificador:pdf';
+  const BRIDGE_ATTRIBUTE = 'data-sisweb-unificador-bridge';
   let busy = false;
-  let activeWaiter;
+  let nextCaptureId = 1;
   let resultUrls = [];
-
-  chrome.runtime.onMessage.addListener((message) => {
-    if (message?.type !== 'sisweb-pdf-ready' || !activeWaiter) return;
-    if (message.captureId !== activeWaiter.captureId) return;
-    const { resolve } = activeWaiter;
-    activeWaiter = undefined;
-    resolve({ url: message.url, popupTabId: message.popupTabId, closeable: message.closeable });
-  });
 
   function visible(element) {
     const rect = element.getBoundingClientRect();
@@ -127,7 +124,7 @@
   }
 
   // Quando não consegue gerar o exame, o SISWeb mostra uma caixa de mensagem
-  // (Ext.Msg) em vez de abrir a aba EXAME. Lemos o motivo e a fechamos para
+  // (Ext.Msg) em vez da página EXAME. Lemos o motivo e a fechamos para
   // seguir com os próximos exames.
   function dismissMessageBox(box) {
     const body = box.querySelector('.x-window-body .x-container, .x-window-text') || box;
@@ -137,23 +134,43 @@
     return text || 'erro sem descrição';
   }
 
-  // Registra a espera no service worker antes do clique, para que a aba EXAME
-  // nunca seja criada antes de a captura existir.
-  async function startCapture() {
-    const result = await chrome.runtime.sendMessage({ type: 'sisweb-await-pdf' });
-    if (!result?.ok) throw new Error(result?.error || 'Não foi possível preparar a leitura do exame.');
+  function sendToBridge(type, id) {
+    document.dispatchEvent(new CustomEvent(type, { detail: JSON.stringify({ id }) }));
+  }
+
+  // Prepara a ponte para a próxima abertura de exame. Precisa ser chamado
+  // imediatamente antes do clique: a ponte intercepta só uma abertura.
+  function startCapture() {
+    const id = `${Date.now()}-${nextCaptureId++}`;
     const boxBefore = visibleMessageBox();
     let timer;
     let poll;
+    let onPdf;
     const promise = new Promise((resolve, reject) => {
-      const finish = (error, value) => {
+      const finish = (error, url) => {
         window.clearTimeout(timer);
         window.clearInterval(poll);
-        if (activeWaiter?.captureId === result.captureId) activeWaiter = undefined;
-        if (!error) return resolve(value);
-        chrome.runtime.sendMessage({ type: 'sisweb-cancel-pdf', captureId: result.captureId });
+        document.removeEventListener(PDF_READY, onPdf);
+        if (!error) return resolve({ id, url });
+        sendToBridge(RELEASE, id);
         reject(error);
       };
+      onPdf = (event) => {
+        let data;
+        try {
+          data = JSON.parse(event.detail);
+        } catch {
+          return;
+        }
+        if (data?.id !== id || typeof data.url !== 'string') return;
+        // Só aceita PDFs servidos pelo próprio SISWeb.
+        const url = new URL(data.url, window.location.href);
+        if (url.origin !== window.location.origin) {
+          return finish(new Error('o PDF veio de um endereço diferente do SISWeb.'));
+        }
+        finish(null, url.href);
+      };
+      document.addEventListener(PDF_READY, onPdf);
       timer = window.setTimeout(() => {
         finish(new Error('O SISWeb não terminou de gerar o PDF dentro do tempo esperado.'));
       }, 20000);
@@ -161,25 +178,23 @@
         const box = visibleMessageBox();
         if (box && box !== boxBefore) finish(new Error(`O SISWeb informou: ${dismissMessageBox(box)}`));
       }, 250);
-      activeWaiter = { captureId: result.captureId, resolve: (value) => finish(null, value) };
     });
-    return { promise };
+    sendToBridge(ARM, id);
+    return promise;
   }
 
   async function getPdf(entry) {
-    const { promise } = await startCapture();
+    const capture = startCapture();
     entry.element.click();
-    const result = await promise;
+    const { id, url } = await capture;
     try {
-      const response = await fetch(result.url, { credentials: 'include', cache: 'no-store' });
+      const response = await fetch(url, { credentials: 'include', cache: 'no-store' });
       if (!response.ok) throw new Error(`Falha ao obter o PDF (${response.status}).`);
       const bytes = await response.arrayBuffer();
       if (!bytes.byteLength) throw new Error('O PDF retornou vazio.');
       return bytes;
     } finally {
-      if (result.closeable) {
-        await chrome.runtime.sendMessage({ type: 'sisweb-close-popup', popupTabId: result.popupTabId });
-      }
+      sendToBridge(RELEASE, id);
     }
   }
 
@@ -258,6 +273,9 @@
     const button = document.getElementById(BUTTON_ID);
     if (entries.length < 2) return setStatus('Não encontrei dois ou mais exames nesta lista.', 'error');
     if (!window.PDFLib?.PDFDocument) return setStatus('A biblioteca de PDF não foi carregada.', 'error');
+    if (!document.documentElement.hasAttribute(BRIDGE_ATTRIBUTE)) {
+      return setStatus('A extensão ainda não está ativa nesta página. Recarregue a página do SISWeb.', 'error');
+    }
     busy = true;
     button.disabled = true;
     button.style.opacity = '.65';

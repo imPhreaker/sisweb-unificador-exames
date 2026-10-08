@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1
+
+- Corrige o bloqueio de pop-ups: o navegador bloqueava as janelas `EXAME` abertas em sequência pela coleta, e nada acontecia se o usuário não permitisse. Agora o PDF de cada exame é lido de um quadro oculto na própria página, sem abrir abas.
+- Remove o rastreamento de abas no service worker; passa a exigir Chrome 102 ou mais recente.
+- Ícone próprio da extensão.
+
 ## 3.0.0
 
 - Tela de configuração (ícone da extensão ou Opções) para informar o endereço do SISWeb de cada município, com `http://` ou `https://` e porta. Os endereços deixaram de ficar fixos no código.

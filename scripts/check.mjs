@@ -13,8 +13,9 @@ if (manifest.version !== pkg.version) {
 }
 
 const files = [
-  'background.js', 'content.js', 'popup-bridge.js', 'sites.js', 'options.js',
-  'options.html', 'options.css', 'pdf-lib.min.js'
+  'background.js', 'content.js', 'page-bridge.js', 'sites.js', 'options.js',
+  'options.html', 'options.css', 'pdf-lib.min.js',
+  'icons/icon-16.png', 'icons/icon-32.png', 'icons/icon-48.png', 'icons/icon-128.png'
 ];
 for (const file of files) {
   if (!existsSync(file)) {

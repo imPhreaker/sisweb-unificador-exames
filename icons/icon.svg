@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="SISWeb Unificador de Exames">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b7a72"/>
+      <stop offset="1" stop-color="#006666"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <rect x="22" y="16" width="56" height="72" rx="7" fill="#bee2de"/>
+  <rect x="34" y="28" width="56" height="72" rx="7" fill="#ffffff"/>
+  <rect x="44" y="46" width="36" height="6" rx="3" fill="#006666"/>
+  <rect x="44" y="58" width="36" height="6" rx="3" fill="#006666"/>
+  <rect x="44" y="70" width="22" height="6" rx="3" fill="#006666"/>
+  <circle cx="94" cy="94" r="30" fill="#ffffff"/>
+  <circle cx="94" cy="94" r="25" fill="#f5a623"/>
+  <rect x="90" y="79" width="8" height="30" rx="3" fill="#ffffff"/>
+  <rect x="79" y="90" width="30" height="8" rx="3" fill="#ffffff"/>
+</svg>

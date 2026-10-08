@@ -31,9 +31,10 @@ jobs:
         run: |
           name="sisweb-unificador-exames-$GITHUB_REF_NAME"
           mkdir -p "dist/$name"
-          cp manifest.json background.js content.js popup-bridge.js sites.js \
+          cp manifest.json background.js content.js page-bridge.js sites.js \
              options.html options.css options.js pdf-lib.min.js \
              README.md THIRD_PARTY_NOTICES.md "dist/$name/"
+          mkdir -p "dist/$name/icons" && cp icons/icon-*.png "dist/$name/icons/"
           [ -f LICENSE ] && cp LICENSE "dist/$name/"
           (cd dist && zip -r "$name.zip" "$name")
 

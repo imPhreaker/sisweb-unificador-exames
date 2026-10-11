@@ -8,6 +8,7 @@ let syncQueue = Promise.resolve();
 async function syncContentScripts() {
   const matches = [];
   for (const site of await SiswebSites.loadSites()) {
+    if (!SiswebSites.isExactOrigin(site.origin)) continue;
     const pattern = SiswebSites.patternFor(site.origin);
     if (await chrome.permissions.contains({ origins: [pattern] })) matches.push(pattern);
   }

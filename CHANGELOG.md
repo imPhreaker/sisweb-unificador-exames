@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.2
+
+- Recusa endereços com `*` na configuração: um curinga como `https://*/` faria a extensão atuar em vários sites. Endereços assim salvos por versões anteriores são ignorados.
+- O prazo de 20 segundos passa a valer também para o download do PDF; antes, uma resposta que não terminava travava a coleta.
+- Quando o SISWeb mostra um erro em vez de abrir o exame, a interceptação de janelas é desfeita na hora; antes ficava ativa por até 20 segundos e um exame aberto manualmente nesse intervalo podia não aparecer.
+
 ## 3.0.1
 
 - Corrige o bloqueio de pop-ups: o navegador bloqueava as janelas `EXAME` abertas em sequência pela coleta, e nada acontecia se o usuário não permitisse. Agora o PDF de cada exame é lido de um quadro oculto na própria página, sem abrir abas.

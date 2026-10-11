@@ -187,13 +187,20 @@
     const capture = startCapture();
     entry.element.click();
     const { id, url } = await capture;
+    // O prazo cobre o download inteiro, inclusive a leitura do conteúdo.
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 20000);
     try {
-      const response = await fetch(url, { credentials: 'include', cache: 'no-store' });
+      const response = await fetch(url, { credentials: 'include', cache: 'no-store', signal: controller.signal });
       if (!response.ok) throw new Error(`Falha ao obter o PDF (${response.status}).`);
       const bytes = await response.arrayBuffer();
       if (!bytes.byteLength) throw new Error('O PDF retornou vazio.');
       return bytes;
+    } catch (error) {
+      if (error?.name === 'AbortError') throw new Error('O PDF demorou demais para ser baixado.');
+      throw error;
     } finally {
+      window.clearTimeout(timer);
       sendToBridge(RELEASE, id);
     }
   }

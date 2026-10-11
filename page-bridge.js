@@ -21,6 +21,7 @@
   const PDF_READY = 'sisweb-unificador:pdf';
   const TIMEOUT_MS = 20000;
   const frames = new Map();
+  const restores = new Map();
 
   function send(id, url) {
     document.dispatchEvent(new CustomEvent(PDF_READY, { detail: JSON.stringify({ id, url }) }));
@@ -46,7 +47,9 @@
     const original = window.open;
     const restore = () => {
       if (window.open === capture) window.open = original;
+      restores.delete(id);
     };
+    restores.set(id, restore);
     // Intercepta somente a próxima abertura de janela em branco.
     const capture = function (url, ...rest) {
       restore();
@@ -66,6 +69,9 @@
 
   document.addEventListener(RELEASE, (event) => {
     const { id } = JSON.parse(event.detail || '{}');
+    // Se o SISWeb não abriu a janela (ex.: mostrou um erro), desarma a captura
+    // para que uma abertura posterior não vire um quadro oculto.
+    restores.get(id)?.();
     frames.get(id)?.remove();
     frames.delete(id);
   });

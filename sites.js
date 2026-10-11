@@ -23,7 +23,21 @@
       throw new Error('Somente endereços http:// ou https:// são aceitos.');
     }
     if (!url.hostname) throw new Error('O endereço não tem um domínio válido.');
+    // "*" viraria um padrão que vale para vários sites (ex.: https://*/*).
+    if (url.hostname.includes('*')) {
+      throw new Error('Informe o endereço exato do SISWeb, sem "*".');
+    }
     return { origin: url.origin };
+  }
+
+  // Também usado com endereços já salvos, que podem vir de versões anteriores.
+  function isExactOrigin(origin) {
+    try {
+      const url = new URL(origin);
+      return /^https?:$/.test(url.protocol) && Boolean(url.hostname) && !url.hostname.includes('*');
+    } catch {
+      return false;
+    }
   }
 
   function patternFor(origin) {
@@ -35,5 +49,5 @@
     return Array.isArray(sites) ? sites.filter((site) => typeof site?.origin === 'string') : [];
   }
 
-  globalThis.SiswebSites = { parseSiteUrl, patternFor, loadSites };
+  globalThis.SiswebSites = { parseSiteUrl, isExactOrigin, patternFor, loadSites };
 })();

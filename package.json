@@ -1,6 +1,6 @@
 {
   "name": "sisweb-unificador-exames",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "private": true,
   "license": "GPL-3.0-or-later",
   "description": "Extensão Chromium que reúne em PDF os resultados de exames exibidos no prontuário do SISWeb",

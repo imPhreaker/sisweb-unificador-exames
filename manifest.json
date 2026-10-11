@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SISWeb Unificador de Exames",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Reúne localmente os PDFs de exames exibidos no prontuário do SISWeb.",
   "minimum_chrome_version": "102",
   "icons": {
